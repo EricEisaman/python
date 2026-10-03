@@ -83,7 +83,7 @@ def big_sig():
 
 def lil_siggy():
     print("-"*64)
-    print("  LIL SIGGY - Commander / Mentor / Lebanese Athlete-Scholar")
+    print("  LIL SIGGY - Commander / Mentor / Athlete-Scholar")
     print("-"*64)
     print("  Look: maroon & gold academic streetwear, elite but humble")
     print("  Arc: MID at mew line -> SIG -> SIGSTER -> BIG SIG")
