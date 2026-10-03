@@ -1,6 +1,6 @@
 services:
     - type: web
-    name: codeskulptor-py3
+    name: sigpy
     env: python
     plan: free
     branch: master

@@ -1,37 +1,99 @@
 import os
+import sys
 import pathlib
-import http.server
-import socketserver
+import traceback
+import importlib
 
-# Render injects PORT, free tier needs 0.0.0.0
 PORT = int(os.environ.get("PORT", "10000"))
+HOST = "0.0.0.0"
 
-# Locate the static files that come with the package
+import codeskulptor
+BASE = pathlib.Path(codeskulptor.__file__).parent
+
+print(f"=== package at {BASE} ===")
+for p in BASE.iterdir():
+    print(" ", p.name)
+
+# 1. Make sure the editor files are downloaded (grabber)
 try:
-    import codeskulptor
-    base = pathlib.Path(codeskulptor.__file__).parent
-    # try to find index.html - handles both py2 and py3 layouts
-    indexes = list(base.rglob("index.html"))
-    if indexes:
-        # prefer the py3 folder if both exist
-        py3 = [p for p in indexes if "py3" in str(p).lower() or "python3" in str(p).lower()]
-        serve_dir = str((py3[0] if py3 else indexes[0]).parent)
-    else:
-        serve_dir = str(base)
-    os.chdir(serve_dir)
-    print(f"Serving CodeSkulptor from: {serve_dir}")
+    import codeskulptor.grabber as grabber
+    print(f"=== grabber module {grabber} dir={dir(grabber)} ===")
+    # try common function names
+    for fname in ["grab", "grab_all", "grab_py3", "download", "fetch", "main"]:
+        if hasattr(grabber, fname):
+            fn = getattr(grabber, fname)
+            try:
+                print(f"Trying grabber.{fname}()")
+                fn()
+                break
+            except TypeError:
+                try:
+                    print(f"Trying grabber.{fname}('py3')")
+                    fn("py3")
+                    break
+                except Exception as e:
+                    print(f" {fname} failed: {e}")
 except Exception as e:
-    print(f"Could not auto-locate codeskulptor files: {e}")
-    print(f"Serving from current dir: {os.getcwd()}")
+    print(f"grabber step failed (will continue): {e}")
+    traceback.print_exc()
 
-class Handler(http.server.SimpleHTTPRequestHandler):
-    # quiet the logs a bit, but keep 200s
-    def log_message(self, format, *args):
-        print("%s - - [%s] %s" % (self.client_address[0],
-                                  self.log_date_time_string(),
-                                  format%args))
+# 2. Show server.py signature so we can see it in Render logs
+try:
+    server_path = BASE / "server.py"
+    print("=== server.py first 4000 chars ===")
+    print(server_path.read_text()[:4000])
+except Exception as e:
+    print(f"Can't read server.py: {e}")
 
-socketserver.TCPServer.allow_reuse_address = True
-with socketserver.ThreadingTCPServer(("0.0.0.0", PORT), Handler) as httpd:
-    print(f"Listening on 0.0.0.0:{PORT}")
-    httpd.serve_forever()
+# 3. Start the real server on 0.0.0.0:$PORT
+print(f"=== Starting CodeSkulptor PY3 on {HOST}:{PORT} ===")
+
+# Try the most likely entrypoints in order
+tried = []
+def try_call(mod_name, func_name, kwargs):
+    try:
+        mod = importlib.import_module(mod_name)
+        if hasattr(mod, func_name):
+            fn = getattr(mod, func_name)
+            print(f"Calling {mod_name}.{func_name}({kwargs})")
+            fn(**kwargs)
+            return True
+    except SystemExit:
+        return True
+    except Exception as e:
+        tried.append(f"{mod_name}.{func_name}({kwargs}) -> {e}")
+        traceback.print_exc()
+    return False
+
+# Most forks use server.main(host, port)
+if try_call("codeskulptor.server", "main", {"host": HOST, "port": PORT}):
+    sys.exit(0)
+if try_call("codeskulptor.server", "main", {"port": PORT}):
+    sys.exit(0)
+if try_call("codeskulptor.server", "run", {"host": HOST, "port": PORT}):
+    sys.exit(0)
+if try_call("codeskulptor.server", "run_py3", {"host": HOST, "port": PORT}):
+    sys.exit(0)
+if try_call("codeskulptor.server", "serve_py3", {"host": HOST, "port": PORT}):
+    sys.exit(0)
+
+# Fallback to __main__ with CLI args (this is what `codeskulptor-py3` does)
+print("Fallback to CLI args:", tried)
+sys.argv = ["codeskulptor-py3", "--host", HOST, "--port", str(PORT)]
+try:
+    import codeskulptor.__main__
+except SystemExit:
+    pass
+except Exception:
+    traceback.print_exc()
+    # Last resort: serve bin/py3 if it exists
+    candidate = BASE / "bin" / "py3"
+    if not candidate.exists():
+        candidate = BASE / "bin"
+    if candidate.exists():
+        os.chdir(str(candidate))
+        print(f"LAST RESORT serving static from {candidate}")
+        import http.server, socketserver
+        socketserver.TCPServer.allow_reuse_address = True
+        with socketserver.ThreadingTCPServer((HOST, PORT), http.server.SimpleHTTPRequestHandler) as httpd:
+            httpd.serve_forever()
