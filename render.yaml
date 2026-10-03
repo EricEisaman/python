@@ -1,0 +1,11 @@
+services:
+    - type: web
+    name: codeskulptor-py3
+    env: python
+    plan: free
+    branch: master
+    buildCommand: pip install.
+    startCommand: python app.py
+    envVars:
+            - key: PYTHON_VERSION
+        value: 3.11.0
