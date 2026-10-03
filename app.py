@@ -39,8 +39,150 @@ HTML = r"""<!DOCTYPE html>
 <header><div><b>σπ</b> sigpy - Python 3 editor</div><div>favicon = σπ</div></header>
 <main>
   <div id="left"><div style="margin-bottom:6px"><button onclick="runCode()">▶ Run</button></div>
-    <textarea id="code">print("σπ favicon works!")
-for i in range(3): print(f"σπ {i}")</textarea>
+<textarea id="code"># SIGMA SCHOLARS LORE TERMINAL...
+# SIGMA SCHOLARS LORE TERMINAL v2024
+# EDWARD LITTLE HIGH SCHOOL - WHO LET THE SKIBS OUT! EDITION
+# People are never disposable. Bad habits are.
+
+import random, math
+
+def banner():
+    print("="*64)
+    print("  WHO LET THE SKIBS OUT! // SIGMA SCHOLARS // ELHS")
+    print("  Maroon & Gold // Fisheye Album Cover Mode: ON")
+    print("="*64)
+    print("")
+    print("  [BIG SIG]  +  [LIL SIGGY]  = ALLIANCE ACTIVATED")
+    print("")
+
+def gaussian():
+    print("  THE GAUSSIAN IS NOT A RANKING. IT'S A ROAD:")
+    print("")
+    print("               .--._  glowing gold math  _.--.")
+    print("            .-'      `'--.       .--'      '-.")
+    print("         .-'   f(x)=1/σ√2π e^-½((x-μ)/σ)²  '-.")
+    print("       .'                RIGHT-TAIL REPS        '.")
+    print("     .'  MID ----------> SIG -> SIGSTER -> BIG SIG '.")
+    print("  ---'------------------------------------------------'---")
+    print("     ^                                                    ^")
+    print("  mew line = starting point, baseline, real talk      far right = skills from practice, feedback, community")
+    print("     mean is a beginning, not a ceiling. fr fr.")
+    print("")
+
+def big_sig():
+    print("-"*64)
+    print("  BIG SIG - Hype Captain / Co-Leader")
+    print("-"*64)
+    print("  Look: maroon varsity jacket Σ SIG, gold shades, backpack")
+    print("        overflowing with A+ work, spare pencils, open seat")
+    print("  Traits: charismatic, disciplined, funny, protective")
+    print("  Core: strength = helping others gain confidence, not flexing")
+    print("  Chant: 'Your starting point is real, but NOT your ceiling.'")
+    print("  Flex: spare pencil, study guide, shared notes")
+    print("")
+
+def lil_siggy():
+    print("-"*64)
+    print("  LIL SIGGY - Commander / Mentor / Lebanese Athlete-Scholar")
+    print("-"*64)
+    print("  Look: maroon & gold academic streetwear, elite but humble")
+    print("  Arc: MID at mew line -> SIG -> SIGSTER -> BIG SIG")
+    print("  Lore: saw a MID alone at lunch, teary, discouraged.")
+    print("        Didn't judge. Sat down. Listened. Made a plan.")
+    print("  Method:")
+    steps = [
+        "  1. Identify barriers without shame",
+        "  2. Simple repeatable study plan",
+        "  3. Break tasks into practice reps",
+        "  4. Normalize office hours / tutoring / revisions",
+        "  5. Celebrate small wins till confidence sustains",
+        "  6. Give new SIG a chance to help others"
+    ]
+    for s in steps: print(s)
+    print("")
+
+def mids_and_skibs():
+    print("-"*64)
+    print("  MIDs vs SKIBs - IMPORTANT DISTINCTION")
+    print("-"*64)
+    print("  MIDs = students in middle, average, stuck, overlooked")
+    print("       NOT an insult. It's 'in motion'. Reclaimable.")
+    print("       uneven grades, missed work, weak routines = valid")
+    print("       -> most important learner: chooses to improve")
+    print("")
+    print("  SKIBs = NOT PEOPLE. They are HABITS to ditch:")
+    habits = [
+        "  - skipping work / putting it off indefinitely",
+        "  - avoiding help from fear / pride / embarrassment",
+        "  - giving up before attempting",
+        "  - 'confusion = I'm not smart' defeatism",
+        "  - mocking effort to avoid vulnerability",
+        "  - doomscrolling, drifting, no plan"
+    ]
+    for h in habits: print(h)
+    print("")
+    print("  -> DITCH DEM SKIBs! = ditch self-sabotage, not classmates")
+    print("")
+
+def alliance():
+    print("-"*64)
+    print("  SIGMA SCHOLAR ALLIANCE - Activities")
+    print("-"*64)
+    acts = [
+        "  Sigma Sessions: focus blocks, whiteboards, peer tutoring",
+        "  Mew-to-Mastery Onboarding: compassionate intake, no judgment",
+        "  Right-Tail Reps: prep -> feedback -> revision -> reflection",
+        "  Notebook Uplift: templates, planners, calculator tips",
+        "  Scholar Spotlights: persistence, helpfulness, not just As",
+        "  Community Knowledge Runs: tutor younger kids, bless block"
+    ]
+    for a in acts: print(a)
+    print("")
+
+def slogans():
+    print("-"*64)
+    print("  SIGNATURE SLOGANS - SAY IT LOUD")
+    print("-"*64)
+    chants = [
+        "  SIGS LOVE DEM MIDS! = we see you trying, we celebrate growth",
+        "  OOOH YEH... THEY DITCHED DEM BIBS! = leave passivity, own next step",
+        "  Ditch dem SKIBs! = reject habits, not people",
+        "  SIGGIN RIGHT! = move right via intentional practice",
+        "  Go Sig or Go Home! = arrive ready to engage or reset & return",
+        "  Build your mind. Bless your block. = skills have social value"
+    ]
+    for c in chants: print(c)
+    print("")
+
+def chant_final():
+    print("="*64)
+    print("  FINAL CHANT - ALLIANCE CHOIR")
+    print("="*64)
+    for i in range(2):
+        print("  WHO LET THE SKIBS OUT?!  SKIB-SKIB-SKIB-SKIB!")
+    print("  WHO LET THE SKIBS OUT?!  DITCH! DITCH! DITCH! DITCH!")
+    print("")
+    print("  Code: Show up prepared. Replace excuses with a plan.")
+    print("        Ask without embarrassment. Share knowledge. Bless school.")
+    print("")
+    print(random.choice([
+        "  Result: You are now 73% more SIGGIN. Aura +1000.",
+        "  Result: Right-tail shift detected. Let's gooo.",
+        "  Result: Notebook drippin, grades grippin. SIGGIN!",
+        "  Result: Belonging unlocked. Welcome to Alliance."
+    ]))
+    print("="*64)
+
+# RUN IT
+banner()
+gaussian()
+big_sig()
+lil_siggy()
+mids_and_skibs()
+alliance()
+slogans()
+chant_final()
+</textarea>
   </div>
   <div id="right"><div style="padding:8px;border-bottom:1px solid #333;background:#111">Console</div><div id="output"></div></div>
 </main>
