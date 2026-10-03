@@ -1,6 +1,6 @@
 # ditchDemSkibs.py
 # SIGMA SCHOLARS - DITCH DEM SKIBs! (habits, not people)
-# SKIBs = self-sabotaging habits to ditch
+# Skulpt-safe - no keyword args, no random.sample with kwargs
 
 import random
 
@@ -30,33 +30,47 @@ SIG_PLAN = [
     "6. Give new SIG a chance to help others"
 ]
 
-def alliance_check(habits_today):
-    skib_count = sum(1 for h in habits_today if h in SKIBS)
-    return skib_count
+def pick_two_random(arr):
+    # Skulpt-safe pick without random.sample
+    a = random.choice(arr)
+    b = random.choice(arr)
+    # ensure different if possible
+    tries = 0
+    while b == a and tries < 10 and len(arr) > 1:
+        b = random.choice(arr)
+        tries = tries + 1
+    return [a, b]
 
-print("="*64)
+def count_skibs(habits_today):
+    c = 0
+    for h in habits_today:
+        if h in SKIBS:
+            c = c + 1
+    return c
+
+print("================================================================")
 print("  DITCH DEM SKIBs! AUDIT")
-print("="*64)
+print("================================================================")
 print("")
 
-# simulate today
-today = random.sample(SKIBS, k=2)
-print(f"  Habits spotted today: {today}")
-print(f"  SKIBs count: {alliance_check(today)}")
+# simulate today - no k= keyword
+today = pick_two_random(SKIBS)
+print("  Habits spotted today: " + str(today))
+print("  SKIBs count: " + str(count_skibs(today)))
 print("")
 
-if alliance_check(today) > 0:
+if count_skibs(today) > 0:
     print("  Action: REPLACE with SIG plan:")
     for step in SIG_PLAN:
-        print(f"    {step}")
+        print("    " + step)
 else:
     print("  Clean run! Aura +1000. SIGGIN RIGHT!")
 
 print("")
-print("-"*64)
+print("----------------------------------------------------------------")
 print("  MIDs are NOT an insult. Reclaim it:")
 for p in MIDS_POWER:
-    print(f"    • {p}")
+    print("    - " + p)
 
 print("")
 print("  Chant: WHO LET THE SKIBs OUT?! DITCH! DITCH! DITCH!")
