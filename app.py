@@ -39,8 +39,8 @@ HTML = r"""<!DOCTYPE html>
 <header><div><b>σπ</b> sigpy - Python 3 editor</div><div>favicon = σπ</div></header>
 <main>
   <div id="left"><div style="margin-bottom:6px"><button onclick="runCode()">▶ Run</button></div>
-<textarea id="code"># SIGMA SCHOLARS LORE TERMINAL...
-# SIGMA SCHOLARS LORE TERMINAL v2024
+<textarea id="code">
+# SIGMA SCHOLARS LORE TERMINAL v2026
 # EDWARD LITTLE HIGH SCHOOL - WHO LET THE SKIBS OUT! EDITION
 # People are never disposable. Bad habits are.
 
