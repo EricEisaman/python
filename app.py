@@ -1,7 +1,10 @@
 import os
+import json
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 PORT = int(os.environ.get("PORT", 10000))
+EXAMPLES_DIR = "examples"
 
 # read favicon files at startup
 def load_favicon(name, default=b""):
@@ -13,6 +16,143 @@ def load_favicon(name, default=b""):
 
 FAVICON_ICO = load_favicon("favicon.ico")
 FAVICON_32 = load_favicon("favicon-32.png")
+FAVICON_180 = load_favicon("favicon-180.png")
+
+def list_example_files():
+    try:
+        if not os.path.isdir(EXAMPLES_DIR):
+            return []
+        files = [f for f in os.listdir(EXAMPLES_DIR) if f.endswith(".py") and os.path.isfile(os.path.join(EXAMPLES_DIR, f))]
+        return sorted(files)
+    except:
+        return []
+
+def ensure_examples():
+    os.makedirs(EXAMPLES_DIR, exist_ok=True)
+    defaults = {
+        "isDuplicatedNumber.py": """# isDuplicatedNumber.py
+# SIGMA SCHOLARS - Check if a number has duplicated digits
+# e.g. 1123 -> True (1 repeats), 1234 -> False
+
+def isDuplicatedNumber(n):
+    \"\"\"Return True if any digit appears more than once.\"\"\"
+    s = str(abs(int(n)))
+    seen = set()
+    for ch in s:
+        if ch in seen:
+            return True
+        seen.add(ch)
+    return False
+
+def isDuplicatedNumberDetailed(n):
+    s = str(abs(int(n)))
+    counts = {}
+    for ch in s:
+        counts[ch] = counts.get(ch, 0) + 1
+    dups = [d for d,c in counts.items() if c > 1]
+    return (len(dups) > 0, dups)
+
+test_numbers = [112, 1234, 1001, 9876543210, 122333, 101010, 2026]
+
+print("="*48)
+print("  isDuplicatedNumber - DITCH DEM SKIBs CHECK")
+print("="*48)
+for num in test_numbers:
+    dup, digits = isDuplicatedNumberDetailed(num)
+    status = "DUPLICATED ⚠️" if dup else "UNIQUE ✅"
+    extra = f" -> repeats: {digits}" if dup else ""
+    print(f"  {num:12} : {status}{extra}")
+
+print("")
+for n in [123, 1123, 5567]:
+    print(f"  isDuplicatedNumber({n}) = {isDuplicatedNumber(n)}")
+""",
+        "gaussianGrowth.py": """# gaussianGrowth.py
+# SIGMA SCHOLARS - The Gaussian is not a ranking, it's a road
+
+import math
+import random
+
+def gaussian(x, mu=0, sigma=1):
+    return (1/(sigma * math.sqrt(2*math.pi))) * math.exp(-0.5 * ((x-mu)/sigma)**2)
+
+def growth_curve(start_pos=-2.0, reps=10, effort=0.3):
+    pos = start_pos
+    history = [pos]
+    for _ in range(reps):
+        pos += effort + random.uniform(-0.05, 0.15)
+        history.append(pos)
+    return history
+
+print("="*64)
+print("  THE GAUSSIAN ROAD - MID -> SIG -> SIGSTER -> BIG SIG")
+print("="*64)
+print("")
+print("  mean is a BEGINNING, not a ceiling. fr fr.")
+print("")
+
+students = {
+    "MID at mew line": {"start": -2.0, "effort": 0.2},
+    "SIG grinding": {"start": -0.5, "effort": 0.3},
+    "SIGSTER locked in": {"start": 1.0, "effort": 0.25},
+}
+
+for name, cfg in students.items():
+    path = growth_curve(cfg["start"], reps=8, effort=cfg["effort"])
+    print(f"- {name}:")
+    print(f"  start {cfg['start']:.1f} -> end {path[-1]:.2f}  (delta +{path[-1]-path[0]:.2f})")
+    print(f"  reps: {' -> '.join(f'{x:.1f}' for x in path)}")
+    print("")
+
+print("  Slogan: SIGS LOVE DEM MIDS! Growth > fixed rank")
+""",
+        "ditchDemSkibs.py": """# ditchDemSkibs.py
+# SIGMA SCHOLARS - DITCH DEM SKIBs! (habits, not people)
+
+import random
+
+SKIBS = [
+    "skipping work / putting it off indefinitely",
+    "avoiding help from fear / pride / embarrassment",
+    "giving up before attempting",
+    "confusion = I'm not smart defeatism",
+    "mocking effort to avoid vulnerability",
+    "doomscrolling, drifting, no plan"
+]
+
+SIG_PLAN = [
+    "1. Identify barriers without shame",
+    "2. Simple repeatable study plan (25-min focus blocks)",
+    "3. Break tasks into practice reps",
+    "4. Normalize office hours / tutoring / revisions",
+    "5. Celebrate small wins till confidence sustains",
+    "6. Give new SIG a chance to help others"
+]
+
+print("="*64)
+print("  DITCH DEM SKIBs! AUDIT")
+print("="*64)
+print("")
+today = random.sample(SKIBS, k=2)
+print(f"  Habits spotted today: {today}")
+print(f"  SKIBs count: {len(today)}")
+print("")
+print("  Action: REPLACE with SIG plan:")
+for step in SIG_PLAN:
+    print(f"    {step}")
+print("")
+print("  Chant: WHO LET THE SKIBs OUT?! DITCH! DITCH! DITCH!")
+"""
+    }
+    for name, content in defaults.items():
+        p = os.path.join(EXAMPLES_DIR, name)
+        if not os.path.exists(p):
+            try:
+                with open(p, "w", encoding="utf-8") as f:
+                    f.write(content)
+                print(f"Created example {p}")
+            except Exception as e:
+                print(f"Failed to create {p}: {e}")
 
 HTML = r"""<!DOCTYPE html>
 <html>
@@ -30,7 +170,7 @@ HTML = r"""<!DOCTYPE html>
   body{margin:0;font-family:monospace;background:#1e1e1e;color:#eee;display:flex;flex-direction:column;height:100vh;height:100dvh}
   header{padding:10px 12px;background:#111;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   header b{color:#fff}
-  main{display:flex;flex:1;overflow:hidden;transition:all 0.2s}
+  main{display:flex;flex:1;overflow:hidden}
   #left{flex:1;display:flex;flex-direction:column;padding:8px;min-width:0;min-height:0}
   #right{flex:1;display:flex;flex-direction:column;border-left:1px solid #333;background:#000;min-width:0;min-height:0}
   textarea{flex:1;background:#1e1e1e;color:#d4d4d4;border:1px solid #333;padding:10px;font-size:14px;resize:none;line-height:1.5;border-radius:6px}
@@ -39,11 +179,15 @@ HTML = r"""<!DOCTYPE html>
   #run-btn{background:#0a84ff;color:white}
   #run-btn:active{transform:scale(0.98)}
   
-  /* view controls */
+  .header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .view-controls{display:flex;gap:6px;background:#1e1e1e;padding:4px;border-radius:8px;border:1px solid #333}
   .view-btn{background:#2a2a2a;color:#aaa;font-size:12px;padding:6px 12px}
   .view-btn.active{background:#0a84ff;color:white;box-shadow:0 0 0 1px #0a84ff}
   .view-btn:hover{color:#fff;background:#333}
+
+  .examples-select{background:#2a2a2a;color:#fff;border:1px solid #333;padding:6px 12px;border-radius:8px;font-family:monospace;font-size:12px;cursor:pointer;min-width:170px}
+  .examples-select:hover{border-color:#555;color:#fff}
+  .examples-select:focus{outline:none;border-color:#0a84ff}
 
   /* view states */
   main.view-editor #right{display:none !important}
@@ -55,32 +199,37 @@ HTML = r"""<!DOCTYPE html>
   .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;flex-wrap:wrap}
   .console-title{padding:8px;border-bottom:1px solid #333;background:#111;display:flex;justify-content:space-between;align-items:center}
 
-  /* mobile */
   @media (max-width: 768px){
     header{padding:8px 10px}
     main{flex-direction:column}
     main.view-split #left{flex:1 1 58%;min-height:0}
     main.view-split #right{flex:1 1 42%;min-height:180px;border-left:none;border-top:1px solid #333}
-    textarea{font-size:16px} /* prevents iOS zoom */
+    textarea{font-size:16px}
     #output{font-size:13px}
     .view-btn{padding:8px 10px;font-size:13px}
+    .examples-select{min-width:130px;font-size:13px;padding:8px 10px}
   }
 </style>
 </head>
 <body>
 <header>
   <div><b>σπ</b> sigpy - Python 3 editor</div>
-  <div class="view-controls" title="Switch layout - great for mobile">
-    <button class="view-btn" id="btn-editor" onclick="setView('editor')">📝 Editor</button>
-    <button class="view-btn active" id="btn-split" onclick="setView('split')">◫ Split</button>
-    <button class="view-btn" id="btn-console" onclick="setView('console')">💻 Console</button>
+  <div class="header-right">
+    <div class="view-controls">
+      <button class="view-btn" id="btn-editor" onclick="setView('editor')">📝 Editor</button>
+      <button class="view-btn active" id="btn-split" onclick="setView('split')">◫ Split</button>
+      <button class="view-btn" id="btn-console" onclick="setView('console')">💻 Console</button>
+    </div>
+    <select id="examples-select" class="examples-select" title="Load an example">
+      <option value="">📚 Examples</option>
+    </select>
   </div>
 </header>
 <main id="main" class="view-split">
   <div id="left">
     <div class="toolbar">
       <button id="run-btn" onclick="runCode()">▶ Run</button>
-      <span style="font-size:11px;color:#666;display:none" id="hint-mobile">📱 tip: use ◫ buttons for full-width</span>
+      <span style="font-size:11px;color:#666;display:none" id="hint-mobile">📱 tip: use ◫ for full-width</span>
     </div>
 <textarea id="code">
 # SIGMA SCHOLARS LORE TERMINAL v2026
@@ -249,7 +398,6 @@ function runCode(){
   Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,document.getElementById("code").value,true))
     .catch(e=>outf(e.toString()+"\n"))
     .finally(()=>{
-      // On mobile, auto-show console after run if in editor-only mode
       if(window.innerWidth < 769 && document.getElementById("main").classList.contains("view-editor")){
         setView('console');
       }
@@ -259,29 +407,66 @@ function runCode(){
 function setView(mode){
   const main = document.getElementById("main");
   main.className = "view-" + mode;
-  document.querySelectorAll(".view-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".view-controls .view-btn").forEach(b=>b.classList.remove("active"));
   const activeBtn = document.getElementById("btn-"+mode);
   if(activeBtn) activeBtn.classList.add("active");
   try{ localStorage.setItem("sigpy_view", mode); }catch(e){}
 }
 
+async function loadExamples(){
+  try{
+    const res = await fetch('/api/examples');
+    if(!res.ok) return;
+    const files = await res.json();
+    const sel = document.getElementById('examples-select');
+    files.forEach(f=>{
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f.replace('.py','');
+      sel.appendChild(opt);
+    });
+  }catch(e){
+    console.log("Failed to load examples list", e);
+  }
+}
+
+async function loadExampleFile(name){
+  if(!name) return;
+  try{
+    const res = await fetch('/api/examples/' + encodeURIComponent(name));
+    if(!res.ok) throw new Error('not found');
+    const text = await res.text();
+    document.getElementById('code').value = text;
+    // Switch to editor on mobile or if console was full-width
+    if(window.innerWidth < 769){
+      setView('editor');
+    } else if(document.getElementById('main').classList.contains('view-console')){
+      setView('split');
+    }
+    clearOutput();
+    outf("Loaded example: " + name + "\\n▶ Hit Run to execute\\n\\n");
+  }catch(e){
+    outf("Failed to load example: " + name + "\\n");
+  }
+}
+
 // init
 (function(){
+  loadExamples();
+  document.getElementById('examples-select').addEventListener('change', (e)=>{
+    loadExampleFile(e.target.value);
+  });
+
   try{
     const saved = localStorage.getItem("sigpy_view");
     if(saved && ["editor","split","console"].includes(saved)){
       setView(saved);
     } else if(window.innerWidth < 769){
-      // default mobile to editor for more typing space
       setView('editor');
       document.getElementById("hint-mobile").style.display = "inline";
+      setTimeout(()=>{ const h=document.getElementById("hint-mobile"); if(h) h.style.display="none"; },4000);
     }
   }catch(e){}
-  // show hint briefly on mobile
-  if(window.innerWidth < 769){
-    const h = document.getElementById("hint-mobile");
-    if(h){ h.style.display="inline"; setTimeout(()=>h.style.display="none",4000); }
-  }
 })();
 </script>
 </body>
@@ -290,17 +475,60 @@ function setView(mode){
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/favicon.ico":
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        if path == "/favicon.ico":
             self.send_response(200)
             self.send_header("Content-type","image/x-icon")
             self.end_headers()
             self.wfile.write(FAVICON_ICO)
-        elif self.path == "/favicon-32.png":
+        elif path == "/favicon-32.png":
             self.send_response(200)
             self.send_header("Content-type","image/png")
             self.end_headers()
             self.wfile.write(FAVICON_32)
-        elif self.path in ("/", "/index.html"):
+        elif path == "/favicon-180.png":
+            self.send_response(200)
+            self.send_header("Content-type","image/png")
+            self.end_headers()
+            self.wfile.write(FAVICON_180 if FAVICON_180 else FAVICON_32)
+        elif path in ("/api/examples", "/api/examples/"):
+            files = list_example_files()
+            self.send_response(200)
+            self.send_header("Content-type","application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin","*")
+            self.end_headers()
+            self.wfile.write(json.dumps(files).encode())
+        elif path.startswith("/api/examples/"):
+            raw = path[len("/api/examples/"):]
+            fname = urllib.parse.unquote(raw)
+            fname = os.path.basename(fname)
+            if not fname.endswith(".py") or "/" in fname or "\\" in fname or fname.startswith(".") or ".." in fname:
+                self.send_response(400)
+                self.send_header("Content-type","text/plain")
+                self.end_headers()
+                self.wfile.write(b"Invalid filename")
+                return
+            fpath = os.path.join(EXAMPLES_DIR, fname)
+            if not os.path.isfile(fpath):
+                self.send_response(404)
+                self.send_header("Content-type","text/plain")
+                self.end_headers()
+                self.wfile.write(b"Not found")
+                return
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-type","text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(content.encode())
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(str(e).encode())
+        elif path in ("/", "/index.html"):
             self.send_response(200)
             self.send_header("Content-type","text/html; charset=utf-8")
             self.end_headers()
@@ -308,8 +536,12 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
+
     def log_message(self, format, *args):
         print("%s %s" % (self.client_address[0], format%args))
 
-print(f"Serving σπ on 0.0.0.0:{PORT}")
-HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+if __name__ == "__main__":
+    ensure_examples()
+    print(f"Serving σπ on 0.0.0.0:{PORT}")
+    print(f"Examples dir: {EXAMPLES_DIR} -> {list_example_files()}")
+    HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
