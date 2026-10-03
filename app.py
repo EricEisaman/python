@@ -18,6 +18,7 @@ HTML = r"""<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>sigpy - σπ</title>
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -25,20 +26,62 @@ HTML = r"""<!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 <style>
-  body{margin:0;font-family:monospace;background:#1e1e1e;color:#eee;display:flex;flex-direction:column;height:100vh}
-  header{padding:10px 16px;background:#111;border-bottom:1px solid #333;display:flex;justify-content:space-between}
-  main{display:flex;flex:1;overflow:hidden}
-  #left{flex:1;display:flex;flex-direction:column;padding:8px}
-  #right{flex:1;display:flex;flex-direction:column;border-left:1px solid #333;background:#000}
-  textarea{flex:1;background:#1e1e1e;color:#d4d4d4;border:1px solid #333;padding:10px;font-size:14px;resize:none}
-  #output{flex:1;overflow:auto;padding:10px;white-space:pre-wrap;background:#000;color:#0f0}
-  button{background:#0a84ff;color:white;border:0;padding:8px 18px;cursor:pointer;border-radius:4px;font-weight:bold}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:monospace;background:#1e1e1e;color:#eee;display:flex;flex-direction:column;height:100vh;height:100dvh}
+  header{padding:10px 12px;background:#111;border-bottom:1px solid #333;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header b{color:#fff}
+  main{display:flex;flex:1;overflow:hidden;transition:all 0.2s}
+  #left{flex:1;display:flex;flex-direction:column;padding:8px;min-width:0;min-height:0}
+  #right{flex:1;display:flex;flex-direction:column;border-left:1px solid #333;background:#000;min-width:0;min-height:0}
+  textarea{flex:1;background:#1e1e1e;color:#d4d4d4;border:1px solid #333;padding:10px;font-size:14px;resize:none;line-height:1.5;border-radius:6px}
+  #output{flex:1;overflow:auto;padding:10px;white-space:pre-wrap;background:#000;color:#0f0;font-size:13px;line-height:1.5}
+  button{border:0;padding:8px 16px;cursor:pointer;border-radius:6px;font-weight:bold;font-family:monospace}
+  #run-btn{background:#0a84ff;color:white}
+  #run-btn:active{transform:scale(0.98)}
+  
+  /* view controls */
+  .view-controls{display:flex;gap:6px;background:#1e1e1e;padding:4px;border-radius:8px;border:1px solid #333}
+  .view-btn{background:#2a2a2a;color:#aaa;font-size:12px;padding:6px 12px}
+  .view-btn.active{background:#0a84ff;color:white;box-shadow:0 0 0 1px #0a84ff}
+  .view-btn:hover{color:#fff;background:#333}
+
+  /* view states */
+  main.view-editor #right{display:none !important}
+  main.view-editor #left{flex:1;width:100%}
+  main.view-console #left{display:none !important}
+  main.view-console #right{flex:1;width:100%}
+  main.view-split #left, main.view-split #right{display:flex}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;flex-wrap:wrap}
+  .console-title{padding:8px;border-bottom:1px solid #333;background:#111;display:flex;justify-content:space-between;align-items:center}
+
+  /* mobile */
+  @media (max-width: 768px){
+    header{padding:8px 10px}
+    main{flex-direction:column}
+    main.view-split #left{flex:1 1 58%;min-height:0}
+    main.view-split #right{flex:1 1 42%;min-height:180px;border-left:none;border-top:1px solid #333}
+    textarea{font-size:16px} /* prevents iOS zoom */
+    #output{font-size:13px}
+    .view-btn{padding:8px 10px;font-size:13px}
+  }
 </style>
 </head>
 <body>
-<header><div><b>σπ</b> sigpy - Python 3 editor</div><div>favicon = σπ</div></header>
-<main>
-  <div id="left"><div style="margin-bottom:6px"><button onclick="runCode()">▶ Run</button></div>
+<header>
+  <div><b>σπ</b> sigpy - Python 3 editor</div>
+  <div class="view-controls" title="Switch layout - great for mobile">
+    <button class="view-btn" id="btn-editor" onclick="setView('editor')">📝 Editor</button>
+    <button class="view-btn active" id="btn-split" onclick="setView('split')">◫ Split</button>
+    <button class="view-btn" id="btn-console" onclick="setView('console')">💻 Console</button>
+  </div>
+</header>
+<main id="main" class="view-split">
+  <div id="left">
+    <div class="toolbar">
+      <button id="run-btn" onclick="runCode()">▶ Run</button>
+      <span style="font-size:11px;color:#666;display:none" id="hint-mobile">📱 tip: use ◫ buttons for full-width</span>
+    </div>
 <textarea id="code">
 # SIGMA SCHOLARS LORE TERMINAL v2026
 # EDWARD LITTLE HIGH SCHOOL - WHO LET THE SKIBS OUT! EDITION
@@ -49,7 +92,7 @@ import random, math
 def banner():
     print("="*64)
     print("  WHO LET THE SKIBS OUT! // SIGMA SCHOLARS // ELHS")
-    print("  Maroon & Gold // Fisheye Album Cover Mode: ON")
+    print("  Maroon & White // Fisheye Album Cover Mode: ON")
     print("="*64)
     print("")
     print("  [BIG SIG]  +  [LIL SIGGY]  = ALLIANCE ACTIVATED")
@@ -184,12 +227,62 @@ slogans()
 chant_final()
 </textarea>
   </div>
-  <div id="right"><div style="padding:8px;border-bottom:1px solid #333;background:#111">Console</div><div id="output"></div></div>
+  <div id="right">
+    <div class="console-title">
+      <span>Console</span>
+      <span style="display:flex;gap:6px">
+        <button class="view-btn" onclick="setView('editor')" style="font-size:11px">← Editor</button>
+        <button class="view-btn" onclick="clearOutput()" style="font-size:11px">Clear</button>
+      </span>
+    </div>
+    <div id="output"></div>
+  </div>
 </main>
 <script>
 function outf(t){document.getElementById("output").innerText+=t}
 function builtinRead(x){if(Sk.builtinFiles===undefined||Sk.builtinFiles["files"][x]===undefined)throw "File not found: '"+x+"'";return Sk.builtinFiles["files"][x]}
-function runCode(){document.getElementById("output").innerText="";Sk.configure({output:outf,read:builtinRead,__future__:Sk.python3});Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,document.getElementById("code").value,true)).catch(e=>outf(e.toString()+"\n"))}
+function clearOutput(){document.getElementById("output").innerText=""}
+
+function runCode(){
+  clearOutput();
+  Sk.configure({output:outf,read:builtinRead,__future__:Sk.python3});
+  Sk.misceval.asyncToPromise(()=>Sk.importMainWithBody("<stdin>",false,document.getElementById("code").value,true))
+    .catch(e=>outf(e.toString()+"\n"))
+    .finally(()=>{
+      // On mobile, auto-show console after run if in editor-only mode
+      if(window.innerWidth < 769 && document.getElementById("main").classList.contains("view-editor")){
+        setView('console');
+      }
+    });
+}
+
+function setView(mode){
+  const main = document.getElementById("main");
+  main.className = "view-" + mode;
+  document.querySelectorAll(".view-btn").forEach(b=>b.classList.remove("active"));
+  const activeBtn = document.getElementById("btn-"+mode);
+  if(activeBtn) activeBtn.classList.add("active");
+  try{ localStorage.setItem("sigpy_view", mode); }catch(e){}
+}
+
+// init
+(function(){
+  try{
+    const saved = localStorage.getItem("sigpy_view");
+    if(saved && ["editor","split","console"].includes(saved)){
+      setView(saved);
+    } else if(window.innerWidth < 769){
+      // default mobile to editor for more typing space
+      setView('editor');
+      document.getElementById("hint-mobile").style.display = "inline";
+    }
+  }catch(e){}
+  // show hint briefly on mobile
+  if(window.innerWidth < 769){
+    const h = document.getElementById("hint-mobile");
+    if(h){ h.style.display="inline"; setTimeout(()=>h.style.display="none",4000); }
+  }
+})();
 </script>
 </body>
 </html>
